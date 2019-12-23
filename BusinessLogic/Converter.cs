@@ -8,7 +8,7 @@ using VideoLibrary;
 
 namespace BusinessLogic
 {
-    public class Converter
+    public static class Converter
     {
         private static readonly string pathToFolder =
             Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ConvertedMp3\";
@@ -22,7 +22,13 @@ namespace BusinessLogic
         {
             YouTube yt = YouTube.Default;
             YouTubeVideo video =  await yt.GetVideoAsync(url);
-            File.WriteAllBytes(pathToFolder + video.Title.Replace(" - YouTube", "") + ".mp3", video.GetBytes());
+            string fileName = Converter.CleanFileName(video.Title.Replace(" - YouTube", ""));
+            File.WriteAllBytes(pathToFolder +  fileName + ".mp3", video.GetBytes());
+        }
+
+        private static string CleanFileName(string fileName)
+        {
+            return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), ""));
         }
     }
 }

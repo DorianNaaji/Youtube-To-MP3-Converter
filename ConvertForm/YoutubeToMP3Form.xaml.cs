@@ -38,13 +38,23 @@ namespace ConvertForm
 
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
         {
+            this._progressBar.SetPercentFast(0);
+            this.UpdateLayout();
             this.IsEnabled = false;
             for (int i = 0; i < Urls.Count; i++)
             {
-                await Task.Run(() => Converter.ConvertYoutubeToMP3(this.Urls[i]));
-                this._progressBar.SetPercent(((double)i / (double)this.Urls.Count) * 100);
+                try
+                {
+                    await Task.Run(() => Converter.ConvertYoutubeToMP3(this.Urls[i]));
+                    this._progressBar.SetPercentDefault(((double)i / (double)this.Urls.Count) * 100);
+                }
+                catch (Exception err)
+                {
+                    MessageBox.Show("Oops.. Something went wrong with the following url :\n" + this.Urls[i] + "\n" +
+                        "No choice but not to download it ! :(.\n" + err, "Oops...", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            this._progressBar.SetPercent(100);
+            this._progressBar.SetPercentFast(100);
             this.IsEnabled = true;
         }
 

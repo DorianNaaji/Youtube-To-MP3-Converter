@@ -13,11 +13,19 @@ namespace ConvertForm
     /// </summary>
     public static class ProgressBarExtensions
     {
-        private static TimeSpan duration = TimeSpan.FromSeconds(2);
+        private static TimeSpan durationLong = TimeSpan.FromSeconds(2);
 
-        public static void SetPercent(this ProgressBar progressBar, double percentage)
+        private static TimeSpan durationFast = TimeSpan.FromMilliseconds(250);
+
+        public static void SetPercentDefault(this ProgressBar progressBar, double percentage)
         {
-            DoubleAnimation animation = new DoubleAnimation(percentage, duration);
+            DoubleAnimation animation = new DoubleAnimation(percentage, durationLong);
+            progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
+        }
+
+        public static void SetPercentFast(this ProgressBar progressBar, double percentage)
+        {
+            DoubleAnimation animation = new DoubleAnimation(percentage, durationFast);
             progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
         }
     }
