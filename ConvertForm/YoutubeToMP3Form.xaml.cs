@@ -34,6 +34,7 @@ namespace ConvertForm
             Converter.SetEnvironment();
         }
 
+
         private List<string> Urls = new List<string>();
 
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
@@ -45,7 +46,7 @@ namespace ConvertForm
             {
                 try
                 {
-                    await Task.Run(() => Converter.ConvertYoutubeToMP3(this.Urls[i]));
+                    await Task.Run(() => Converter.DownloadAndConvertYoutubeToLocal(this.Urls[i]));
                     this._progressBar.SetPercentDefault(((double)i / (double)this.Urls.Count) * 100);
                 }
                 catch (Exception err)
