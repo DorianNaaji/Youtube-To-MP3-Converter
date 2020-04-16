@@ -44,17 +44,17 @@ namespace ConvertForm
             this.IsEnabled = false;
             for (int i = 0; i < Urls.Count; i++)
             {
-                //try
-                //{
+                try
+                {
                     await Task.Run(() => Converter.DownloadAndConvertYoutubeToLocal(this.Urls[i]));
                     this._progressBar.SetPercentDefault(((double)i / (double)this.Urls.Count) * 100);
-                //}
-                //catch (Exception err)
-                //{
-                //    MessageBox.Show("Oops.. Something went wrong with the following url :\n" + this.Urls[i] + "\n" +
-                //        "No choice but not to download it ! :(.\n" + err, "Oops...", MessageBoxButton.OK, MessageBoxImage.Error);
-                //    Console.WriteLine(err);
-                //}
+                }
+                catch (Exception err)
+                {
+                    MessageBox.Show("Oops.. Something went wrong with the following url :\n" + this.Urls[i] + "\n" +
+                        "No choice but not to download it ! :(.\n" + err, "Oops...", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Console.WriteLine(err);
+                }
             }
             this._progressBar.SetPercentFast(100);
             this.IsEnabled = true;
