@@ -30,8 +30,8 @@
     <TargetCulture>en</TargetCulture>
     <ProductName>Youtube To MP3 Converter</ProductName>
     <PublisherName>Dorian NAAJI</PublisherName>
-    <ApplicationRevision>10</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
