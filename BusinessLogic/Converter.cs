@@ -3,10 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NReco.VideoConverter;
-using System.Collections.Generic;
-using VideoLibrary;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
+using MediaToolkit.Model;
+using MediaToolkit;
+using YoutubeExplode.Videos;
+using System.Collections.Generic;
 
 namespace BusinessLogic
 {
@@ -24,53 +26,40 @@ namespace BusinessLogic
 
         public static async Task DownloadAndConvertYoutubeToLocal(string url)
         {
-            //YouTube yt = YouTube.Default;
-            //YouTubeVideo video = await yt.GetVideoAsync(url);
-            //string fileName = Converter.CleanFileName(video.Title.Replace(" - YouTube", ""));
-            //string fullPath = _pathToFolder + fileName + ".temp";
-            //File.WriteAllBytes(fullPath, video.GetBytes());
-            //await ConvertYoutubeMp4ToMp3(fullPath);
-            //IEnumerable <VideoInfo> videoInfos = DownloadUrlResolver.GetDownloadUrls(url);
-            //VideoInfo video = videoInfos
-            //    .Where(info => info.CanExtractAudio)
-            //    .OrderByDescending(info => info.AudioBitrate)
-            //    .First();
-
-            //if(video.RequiresDecryption)
-            //{
-            //    DownloadUrlResolver.DecryptDownloadUrl(video);
-            //}
-
-            //AudioDownloader audioDownloader = new AudioDownloader(video, Path.Combine(_pathToFolder + video.Title + video.AudioExtension));
-
-            //return Task.Run(() =>
-            //{
-            //    audioDownloader.Execute();
-            //});
-
             YoutubeClient youtube = new YoutubeClient();
-
-            var video = await youtube.Videos.GetAsync(url);
             string manifest = url.Substring(url.LastIndexOf("/")).Replace("/watch?v=", "");
 
             StreamManifest StreamManifest = await youtube.Videos.Streams.GetManifestAsync(manifest);
             IStreamInfo streamInfo = StreamManifest.GetAudioOnly().WithHighestBitrate();
             Stream stream = await youtube.Videos.Streams.GetAsync(streamInfo);
 
-            string fileName = Converter.CleanFileName(video.Title.Replace(" - YouTube", ""));
-            string fullPath = _pathToFolder + fileName + ".mp3";
-            await youtube.Videos.Streams.DownloadAsync(streamInfo, fullPath);
+            Video vid = await youtube.Videos.GetAsync(url);
+            string cleanFileName = Converter.CleanFileName(vid.Title);
+            string baseFilePath = _pathToFolder + cleanFileName;
+            using (var fileStream = File.Create(baseFilePath))
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                stream.CopyTo(fileStream);
+            }
+            var inputFile = new MediaFile
+            {
+                Filename = _pathToFolder + cleanFileName
+            };
+            var outputFile = new MediaFile
+            {
+                Filename = $"{_pathToFolder + cleanFileName}.mp3"
+            };
 
+            using (var engine = new Engine())
+            {
+                engine.GetMetadata(inputFile);
+
+                engine.Convert(inputFile, outputFile);
+            }
+
+            File.Delete(baseFilePath);
         }
 
-        //private static Task ConvertYoutubeMp4ToMp3(string pathToOldFile)
-        //{
-        //    return Task.Run(() =>
-        //    {
-        //        _converter.ConvertMedia(pathToOldFile, pathToOldFile.Replace(".temp", "") + ".mp3", "mp3");
-        //        File.Delete(pathToOldFile);
-        //    });
-        //}
 
         private static string CleanFileName(string fileName)
         {

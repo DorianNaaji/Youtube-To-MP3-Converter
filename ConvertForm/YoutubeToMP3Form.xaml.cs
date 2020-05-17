@@ -42,6 +42,7 @@ namespace ConvertForm
             this._progressBar.SetPercentFast(0);
             this.UpdateLayout();
             this.IsEnabled = false;
+            List<string> undownloadedFiles = new List<string>();
             for (int i = 0; i < Urls.Count; i++)
             {
                 try
@@ -53,8 +54,14 @@ namespace ConvertForm
                 {
                     MessageBox.Show("Oops.. Something went wrong with the following url :\n" + this.Urls[i] + "\n" +
                         "No choice but not to download it ! :(.\n" + err, "Oops...", MessageBoxButton.OK, MessageBoxImage.Error);
+                    undownloadedFiles.Add(this.Urls[i]);
                     Console.WriteLine(err);
                 }
+            }
+            if(!(undownloadedFiles.Count == 0))
+            {
+                String txtPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ConvertedMp3.Logs.txt";
+                File.WriteAllLines(txtPath, undownloadedFiles.ToArray());
             }
             this._progressBar.SetPercentFast(100);
             this.IsEnabled = true;
