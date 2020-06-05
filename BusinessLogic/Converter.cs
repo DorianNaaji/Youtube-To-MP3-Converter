@@ -9,6 +9,8 @@ using MediaToolkit.Model;
 using MediaToolkit;
 using YoutubeExplode.Videos;
 using System.Collections.Generic;
+using VideoLibrary;
+using YouTubeSearch;
 
 namespace BusinessLogic
 {
@@ -24,8 +26,61 @@ namespace BusinessLogic
             Directory.CreateDirectory(_pathToFolder);
         }
 
+        private static Task ConvertYoutubeMp4ToMp3(string pathToOldFile)
+        {
+            return Task.Run(() =>
+            {
+                _converter.ConvertMedia(pathToOldFile, pathToOldFile.Replace(".mp4", "") + ".mp3", "mp3");
+                File.Delete(pathToOldFile);
+            });
+        }
+
         public static async Task DownloadAndConvertYoutubeToLocal(string url)
         {
+            //{
+            //    VideoSearch vs = new VideoSearch();
+            //    IEnumerable<YouTubeSearch.VideoInfo> videoInfos = YouTubeSearch.DownloadUrlResolver.GetDownloadUrls(url, false);
+
+            //    VideoInfo video = videoInfos
+            //        .First(info => info.VideoType == VideoType.Mp4 && info.Resolution == 360);
+
+            //    if (video.RequiresDecryption)
+            //    {
+            //        DownloadUrlResolver.DecryptDownloadUrl(video);
+            //    }
+
+            //    VideoDownloader dl = new VideoDownloader();
+            //    dl.DownloadFile(video.DownloadUrl, Converter.CleanFileName(video.Title), true, _pathToFolder, ".mp4" +
+            //        "");
+
+            //    String pathToOldFile = Path.Combine(_pathToFolder, Converter.CleanFileName(video.Title)) + ".mp4";
+            //await ConvertYoutubeMp4ToMp3(pathToOldFile);
+
+            //string source = _pathToFolder;
+            //var youtube = YouTube.Default;
+            //var vid = youtube.GetVideo(url);
+
+            //string cleanFileName = Converter.CleanFileName(vid.FullName);
+            //string filePath = source + cleanFileName;
+            //File.WriteAllBytes(filePath, vid.GetBytes());
+
+            //var inputFile = new MediaFile
+            //{
+            //    Filename = filePath
+            //};
+
+            //var outputFile = new MediaFile
+            //{
+            //    Filename = filePath + ".mp3"
+            //};
+
+            //using (Engine engine = new Engine())
+            //{
+            //    engine.GetMetadata(inputFile);
+
+            //    engine.Convert(inputFile, outputFile);
+            //}
+
             YoutubeClient youtube = new YoutubeClient();
             string manifest = url.Substring(url.LastIndexOf("/")).Replace("/watch?v=", "");
 
@@ -33,7 +88,7 @@ namespace BusinessLogic
             IStreamInfo streamInfo = StreamManifest.GetAudioOnly().WithHighestBitrate();
             Stream stream = await youtube.Videos.Streams.GetAsync(streamInfo);
 
-            Video vid = await youtube.Videos.GetAsync(url);
+            YoutubeExplode.Videos.Video vid = await youtube.Videos.GetAsync(url);
             string cleanFileName = Converter.CleanFileName(vid.Title);
             string baseFilePath = _pathToFolder + cleanFileName;
             using (var fileStream = File.Create(baseFilePath))
@@ -58,6 +113,9 @@ namespace BusinessLogic
             }
 
             File.Delete(baseFilePath);
+
+
+
         }
 
 
