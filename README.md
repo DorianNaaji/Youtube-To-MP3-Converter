@@ -1,3 +1,5 @@
+# NB : Install.zip is not up to date.
+
 # YoutubeToMP3Converter
 
 ![alt text](https://github.com/DorianNaaji/YoutubeToMP3Converter/blob/master/ui.png "User interface")
