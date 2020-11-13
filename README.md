@@ -1,3 +1,7 @@
+# NB : Install.zip is not up to date.
+
+You must download the project and compile it by yourself. Then release it in order to get the .exe installation.
+
 # YoutubeToMP3Converter
 
 ![alt text](https://github.com/DorianNaaji/YoutubeToMP3Converter/blob/master/ui.png "User interface")
