@@ -31,6 +31,7 @@ namespace ConvertForm
             this._tbTip.IsTabStop = false;
             this._tbLink.TextWrapping = TextWrapping.WrapWithOverflow;
             this._tbLink.AcceptsReturn = true;
+            this.label_version.Content = "Version : " + typeof(YoutubeToMP3Form).Assembly.GetName().Version;
             Converter.SetEnvironment();
         }
 

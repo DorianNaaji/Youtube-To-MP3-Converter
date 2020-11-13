@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ConvertForm"
         mc:Ignorable="d"
-        Title="Youtube To MP3 Converter" Height="506.667" Width="416" Icon="Resources/mp3.ico">
+        Title="Youtube To MP3 Converter" Height="526.667" Width="416" Icon="Resources/mp3.ico">
     <Grid Height="442" VerticalAlignment="Top">
         <Button x:Name="_convertButton" Content="Convert to MP3 !" HorizontalAlignment="Left" Margin="268,381,0,0" VerticalAlignment="Top" Width="130" Height="44" FontSize="16" Click="_convertButton_Click"/>
         <TextBox x:Name="_tbLink" HorizontalAlignment="Left" Height="233" Margin="10,143,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="388" Text="https://www.youtube.com/watch?v=bddBfkS0O7k" TextChanged="_tbLink_TextChanged"/>
@@ -25,6 +25,7 @@
                 </Paragraph>
             </FlowDocument>
         </RichTextBox>
+        <Label x:Name="label_version" Content="Label" HorizontalAlignment="Left" Height="29" Margin="10,462,0,-49" VerticalAlignment="Top" Width="378"/>
 
     </Grid>
 </Window>
