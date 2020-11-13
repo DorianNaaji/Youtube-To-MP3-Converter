@@ -1,6 +1,4 @@
-# NB : Install.zip is not up to date.
-
-You must download the project and compile it by yourself. Then release it in order to get the .exe installation.
+# Last release : 5.0.0.1 (see releases)
 
 # YoutubeToMP3Converter
 
@@ -13,6 +11,6 @@ You may try it by installing it (see install.rar / install.zip, which contain th
 
 # Install
 
-* Download install.zip
-* Uncompress
-* Start "setup.exe"
+* Download last release
+* uncompress
+* start downloading 🎉
