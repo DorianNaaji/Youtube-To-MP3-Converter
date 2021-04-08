@@ -1,14 +1,22 @@
-# Last release : 5.0.0.1 (see releases)
+# Youtube To MP3 Converter
 
-# YoutubeToMP3Converter
+Convert multiple Youtube Videos (multiple links input) easily with this converter !
+
+
+_I'm really fond of music and I'm converting a lot of Youtube music videos into MP3 format.
+So I wanted to develop my own converter, since I wasn't able to find THE converter that would do the job for me._
 
 ![alt text](https://github.com/DorianNaaji/YoutubeToMP3Converter/blob/master/ui.png "User interface")
 
-I'm really fond of music and I'm converting a lot of Youtube videos to Mp3 format.
-So I wanted to develop my own converter, just to take a look at how it works, with quite a simple UI.
+
 
 # Install
 
 * Download last release
-* uncompress
+* install
 * start downloading 🎉
+
+⚠
++ You can enter as many links you want/need.
++ Links must respect this format : https://www.youtube.com/watch?v=tpKr_gCmV0c
++ Feel free to add issues if you encounter any problem
