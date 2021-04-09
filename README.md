@@ -12,7 +12,7 @@ So I wanted to develop my own converter, since I wasn't able to find THE convert
 
 # Install
 
-* Download last release
+* Download last release : https://github.com/DorianNaaji/YoutubeToMP3Converter/releases/download/6.0.0.0/publish.zip
 * install
 * start downloading 🎉
 
