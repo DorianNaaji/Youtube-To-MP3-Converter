@@ -20,3 +20,9 @@ So I wanted to develop my own converter, since I wasn't able to find THE convert
 + You can enter as many links you want/need.
 + Links must respect this format : https://www.youtube.com/watch?v=tpKr_gCmV0c
 + Feel free to add issues if you encounter any problem
+
+
+
+features :
+- Multi URL Youtube to MP3 Download / Download multiple Youtube videos / Download multiple YouTube URL / Convert to MP3
+- YouTube URL Checking
