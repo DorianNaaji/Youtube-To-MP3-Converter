@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Diagnostics;
 
+#pragma warning disable CS4014
 namespace YoutubeToMP3
 {
     /// <summary>
@@ -28,24 +29,39 @@ namespace YoutubeToMP3
             this.label_version.Content = "Version : " + typeof(YoutubeToMP3Form).Assembly.GetName().Version;
         }
 
-        private int cptDone = 1;
-
-
-        private List<string> Urls = new List<string>();
+        private readonly List<String> Urls = new List<string>();
 
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
         {
+            this.IsEnabled = false;
             this._progressBar.SetPercentFast(0);
             this.UpdateLayout();
-            this.IsEnabled = false;
+            double cpt = 0;
             List<string> undownloadedFiles = new List<string>();
+
             for (int i = 0; i < Urls.Count; i++)
             {
                 try
                 {
-                    Process p = await Task.Run(() => Converter.DownloadAndConvertYoutubeToLocal(this.Urls[i]));
-                    this._progressBar.SetPercentDefault(((double)i / (double)this.Urls.Count) * 100);
-
+                    Process p = await Task.Run(() => Converter.DownloadWebmAudio(this.Urls[i]));
+                    double di = (double)i;
+                    String currentUrl = this.Urls[i];
+                    //this._progressBar.SetPercentDefault(((double)i / (double)this.Urls.Count) * 100);
+                    //if(i == Urls.Count - 1)
+                    //{
+                    //    this._progressBar.SetPercentFast(100);
+                    //    this.IsEnabled = true;
+                    //}
+                    Task.Run(() => // Task to update progress bar
+                    {
+                        while (!p.HasExited) { } // Waits for the process to exit in another thread
+                        cpt++;
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            this._progressBar.SetPercentDefault(cpt/this.Urls.Count * 100);
+                            Console.WriteLine(cpt / this.Urls.Count * 100);
+                        });
+                    });
                 }
                 catch (Exception err)
                 {
@@ -55,13 +71,11 @@ namespace YoutubeToMP3
                     Console.WriteLine(err);
                 }
             }
-            if(!(undownloadedFiles.Count == 0))
+            if (!(undownloadedFiles.Count == 0))
             {
                 String txtPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ConvertedMp3.Logs.txt";
                 File.WriteAllLines(txtPath, undownloadedFiles.ToArray());
             }
-            this._progressBar.SetPercentFast(100);
-            this.IsEnabled = true;
         }
 
         private void _checkLinksButton_Click(object sender, RoutedEventArgs e)
@@ -74,8 +88,7 @@ namespace YoutubeToMP3
             else
             {
                 this.Urls.Clear();
-                MessageBox.Show("The given links present errors. Please enter one youtube link per line.\n", "Warning",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("The given links contain errors. Please enter one youtube link per line.\n", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
