@@ -19,6 +19,25 @@ namespace YoutubeToMP3.BusinessLogic
             Directory.CreateDirectory(_pathToFolder);
         }
 
+        public static List<String> GetAllConvertedFiles()
+        {
+            DirectoryInfo d = new DirectoryInfo(_pathToFolder);
+            FileInfo[] files = d.GetFiles();
+
+            List<String> filesList = new List<String>();
+            foreach (FileInfo fileInfo in files)
+            {
+                filesList.Add(fileInfo.Name);
+            }
+
+            return filesList;
+        }
+
+        public static void ConvertFile(String filename)
+        {
+            _converter.ConvertMedia(_pathToFolder + filename, _pathToFolder + filename + ".mp3", ".mp3");
+        }
+
         public static Process DownloadWebmAudio(string url)
         {
             return Converter.InitProcess("lib\\youtube-dl.exe", 

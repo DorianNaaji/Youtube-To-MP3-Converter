@@ -26,7 +26,5 @@
             </FlowDocument>
         </RichTextBox>
         <Label x:Name="label_version" Content="Label" HorizontalAlignment="Left" Height="29" Margin="10,462,0,-49" VerticalAlignment="Top" Width="378"/>
-        <Label Content="Download Progress (conversion will still occur on complete)" HorizontalAlignment="Left" Margin="10,425,0,0" VerticalAlignment="Top" Width="265" Height="26" FontStyle="Italic" FontSize="8"/>
-
     </Grid>
 </Window>

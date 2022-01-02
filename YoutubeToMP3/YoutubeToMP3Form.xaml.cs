@@ -30,14 +30,19 @@ namespace YoutubeToMP3
         }
 
         private readonly List<String> Urls = new List<string>();
+        private Dictionary<String, Boolean> Downloaded = new Dictionary<String, Boolean>();
 
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
         {
+            double cpt = 0;
             this.IsEnabled = false;
             this._progressBar.SetPercentFast(0);
             this.UpdateLayout();
-            double cpt = 0;
             List<string> undownloadedFiles = new List<string>();
+            foreach(string url in this.Urls)
+            {
+                this.Downloaded.Add(url, false);
+            }
 
             for (int i = 0; i < Urls.Count; i++)
             {
@@ -46,20 +51,19 @@ namespace YoutubeToMP3
                     Process p = await Task.Run(() => Converter.DownloadWebmAudio(this.Urls[i]));
                     double di = (double)i;
                     String currentUrl = this.Urls[i];
-                    //this._progressBar.SetPercentDefault(((double)i / (double)this.Urls.Count) * 100);
-                    //if(i == Urls.Count - 1)
-                    //{
-                    //    this._progressBar.SetPercentFast(100);
-                    //    this.IsEnabled = true;
-                    //}
                     Task.Run(() => // Task to update progress bar
                     {
                         while (!p.HasExited) { } // Waits for the process to exit in another thread
                         cpt++;
                         this.Dispatcher.Invoke(() =>
                         {
-                            this._progressBar.SetPercentDefault(cpt/this.Urls.Count * 100);
+                            this._progressBar.SetPercentDefault(cpt / this.Urls.Count * 100);
                             Console.WriteLine(cpt / this.Urls.Count * 100);
+                            if (cpt / this.Urls.Count * 100 == 100)
+                            {
+                                Console.WriteLine("passing to true");
+                                this.IsEnabled = true;
+                            }
                         });
                     });
                 }
@@ -76,6 +80,33 @@ namespace YoutubeToMP3
                 String txtPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ConvertedMp3.Logs.txt";
                 File.WriteAllLines(txtPath, undownloadedFiles.ToArray());
             }
+
+            Task.Run(() => // Task to convert webm to mp3
+            {
+                while (!this.AllDownloaded()) { } // Waits for everything to be downloaded
+
+                for (int j = 0; j < Converter.GetAllConvertedFiles().Count; j++)
+                {
+                    Converter.ConvertFile(Converter.GetAllConvertedFiles()[j]);
+                }
+            });
+        }
+
+        private Boolean AllDownloaded()
+        {
+            try
+            {
+                foreach (KeyValuePair<String, Boolean> entry in this.Downloaded)
+                {
+                    if (!entry.Value) return false;
+                }
+                return true;
+            }
+            catch(InvalidOperationException e)
+            {
+                return false;
+            }
+            return false;
         }
 
         private void _checkLinksButton_Click(object sender, RoutedEventArgs e)
