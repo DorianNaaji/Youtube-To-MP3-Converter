@@ -40,7 +40,7 @@ namespace YoutubeToMP3.BusinessLogic
 
         public static Process DownloadWebmAudio(string url)
         {
-            return Converter.InitProcess("lib\\youtube-dl.exe", 
+            return Converter.InitProcess("lib\\yt-dlp.exe", 
                 " -f bestaudio  --extract-audio --audio-format mp3 --audio-quality 0 " + url + " -o " + _pathToFolder + "\\%(title)s.%(ext)s");
         }
 

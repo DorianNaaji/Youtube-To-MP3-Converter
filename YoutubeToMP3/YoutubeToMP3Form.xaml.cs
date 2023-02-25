@@ -27,6 +27,7 @@ namespace YoutubeToMP3
             this._tbLink.TextWrapping = TextWrapping.WrapWithOverflow;
             this._tbLink.AcceptsReturn = true;
             this.label_version.Content = "Version : " + typeof(YoutubeToMP3Form).Assembly.GetName().Version;
+            Converter.SetEnvironment();
         }
 
         private readonly List<String> Urls = new List<string>();
