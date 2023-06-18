@@ -12,9 +12,9 @@ So I wanted to develop my own converter, since I wasn't able to find THE convert
 
 # Install
 
-* Download last release : https://github.com/DorianNaaji/YoutubeToMP3Converter/releases/download/6.0.0.0/publish.zip
+* Download latest release or build an installer locally
 * install
-* start downloading 🎉
+* start downloading mp3s🎉
 
 ⚠
 + You can enter as many links you want/need.
