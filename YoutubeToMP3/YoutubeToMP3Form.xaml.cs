@@ -42,7 +42,11 @@ namespace YoutubeToMP3
             List<string> undownloadedFiles = new List<string>();
             foreach(string url in this.Urls)
             {
-                this.Downloaded.Add(url, false);
+                // Handle eventual duplicates to avoid errors
+                if (!this.Downloaded.ContainsKey(url))
+                {
+                    this.Downloaded.Add(url, false);
+                }
             }
 
             for (int i = 0; i < Urls.Count; i++)
