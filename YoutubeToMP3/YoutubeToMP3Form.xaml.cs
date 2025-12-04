@@ -1,10 +1,7 @@
 ﻿using YoutubeToMP3.BusinessLogic;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,7 +28,7 @@ namespace YoutubeToMP3
         }
 
         private readonly List<String> Urls = new List<string>();
-        private Dictionary<String, Boolean> Downloaded = new Dictionary<String, Boolean>();
+        private readonly Dictionary<String, Boolean> Downloaded = new Dictionary<String, Boolean>();
 
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
         {
@@ -111,7 +108,6 @@ namespace YoutubeToMP3
             {
                 return false;
             }
-            return false;
         }
 
         private void _checkLinksButton_Click(object sender, RoutedEventArgs e)
