@@ -1,34 +1,44 @@
-# Youtube To MP3 Converter
+# Youtube To MP3 Converter [DISCONTINUED]
 
-Convert multiple Youtube Videos (multiple links input) easily with this converter !
+**⚠️ STATUS: ARCHIVED / NO LONGER MAINTAINED**
 
+## 🛑 Why is this project discontinued?
 
-_I'm really fond of music and I'm converting a lot of Youtube music videos into MP3 format.
-So I wanted to develop my own converter, since I wasn't able to find THE converter that would do the job for me._
+After maintaining this tool for some time, I have decided to stop its development.
 
-![alt text](https://github.com/DorianNaaji/YoutubeToMP3Converter/blob/master/ui.png "User interface")
+Since January 2026, YouTube has aggressively reinforced its anti-bot protections and download restrictions. The "cat-and-mouse" game required to keep this converter working has become too time-consuming.
 
+The technical challenges now include:
+* **Constant Breaking Changes:** YouTube updates its signature encryption and API almost daily.
+* **Complex Requirements:** Bypassing current protections requires external JavaScript engines (Node.js), specific browser cookie injections, and solving "n-challenges" that constantly fail.
+* **Maintenance Cost:** Keeping the underlying libraries (`yt-dlp`) and the code compatible with YouTube's new "Proof of Humanity" checks requires daily monitoring that I can no longer provide.
 
+## ✅ The Best Alternative
 
-# Install
+Since batch downloading via external software is becoming increasingly difficult, I have switched to a browser-based workflow. This method is much more stable as it uses your active browser session.
 
-* Download latest release or build an installer locally
-* install
-* start downloading mp3s🎉
+I personally recommend using the following combination:
 
-⚠
-+ You can enter as many links you want/need.
-+ Links must respect this format : https://www.youtube.com/watch?v=tpKr_gCmV0c (playlist links also work but I suggest you clean them before)
-+ The app relies on https://github.com/yt-dlp/yt-dlp/releases, so sometimes when the lib is outdated, problems may occur. I'll update it everytime it fails, but don't hesitate to replace it in your own install folder if you have issues.
-+ Feel free to add issues if you encounter any problem
+### 1. YouTube Downloader (Chromium Extension)
+I use the **Addoncrop** extension. It integrates a download button directly below the YouTube video player.
 
+👉 **Download here:** [YouTube Downloader (v27)](https://addoncrop.com/v27/youtube-downloader/)
 
+### 2. FlixMate (Helper App)
+To handle high-quality MP3 conversions and video merging, the extension works best with **FlixMate**.
 
+👉 **Download here:** [FlixMate](https://flixmate.net/)
 
-features :
-- Multi URL Youtube to MP3 Download / Download multiple Youtube videos / Download multiple YouTube URL / Convert to MP3
-- YouTube URL Checking
+---
 
-keywords :
+## 💡 Recommended Workflow
 
-_Batch Youtube to MP3 Converter ; Batch convert YouTube to MP3 ; Convert YouTube to MP3 ; Convert YouTube to MP3 in batch ; YouTube to MP3 downloader_
+Instead of saving links to a text file and trying to batch convert them later (which often triggers YouTube's "Bot" detection due to mass requests), I recommend changing your habit:
+
+**Download the music/video immediately as you discover it.**
+
+Using the extension mentioned above, it takes just one click while you are listening to the track. It is faster, more reliable, and future-proof.
+
+---
+
+*Thank you to everyone who used this tool.*
