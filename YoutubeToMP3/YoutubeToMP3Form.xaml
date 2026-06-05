@@ -4,17 +4,110 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Youtube To MP3 Converter" Height="526.667" Width="416" Icon="Resources/mp3.ico">
-    <Grid Height="442" VerticalAlignment="Top">
-        <Button x:Name="_convertButton" Content="Convert to MP3 !" HorizontalAlignment="Left" Margin="268,381,0,0" VerticalAlignment="Top" Width="130" Height="44" FontSize="16" Click="_convertButton_Click"/>
-        <TextBox x:Name="_tbLink" HorizontalAlignment="Left" Height="233" Margin="10,143,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="388" Text="https://www.youtube.com/watch?v=..." TextChanged="_tbLink_TextChanged"/>
-        <Label Content="YouTube Links, one per line" HorizontalAlignment="Left" Margin="10,118,0,0" VerticalAlignment="Top" Height="25" Width="167" FontWeight="Bold"/>
-        <Label Content="Add your YouTube links below (one per line), click Check links, then Convert.&#xA;Output folder: Desktop\ConvertedMp3&#xA;Source: https://github.com/DorianNaaji/Youtube-To-MP3-Converter" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="60" Width="388"/>
-        <Separator HorizontalAlignment="Left" Height="9" Margin="10,109,0,0" VerticalAlignment="Top" Width="378"/>
-        <Button x:Name="_checkLinksButton" Content="Check links" HorizontalAlignment="Left" Margin="10,384,0,0" VerticalAlignment="Top" Width="130" Height="42" FontSize="16" Click="_checkLinksButton_Click"/>
-        <ProgressBar x:Name="_progressBar" HorizontalAlignment="Left" Height="18" Margin="10,444,0,-20" VerticalAlignment="Top" Width="388"/>
-        <TextBlock x:Name="_tbTip" HorizontalAlignment="Left" Height="39" Margin="10,70,0,0" VerticalAlignment="Top" Width="378" FontSize="9" TextWrapping="Wrap"
-                   Text="Tip: only standard YouTube watch links are supported (youtube.com/watch?v=...). Shorts and playlist links are not."/>
-        <Label x:Name="label_version" Content="Version" HorizontalAlignment="Left" Height="29" Margin="10,462,0,-49" VerticalAlignment="Top" Width="378"/>
-    </Grid>
+        Title="YouTube to MP3" Height="490" Width="460"
+        ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
+        Icon="Resources/mp3.ico" Background="White">
+
+    <Window.Resources>
+        <Style x:Key="OutlineButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#CC0000"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="White" BorderBrush="#EBEBEB" BorderThickness="0,0,0,1" Padding="4,2">
+            <MenuItem Header="Settings" FontSize="12">
+                <MenuItem Header="Output folder…" Click="OutputFolder_Click"/>
+                <Separator/>
+                <MenuItem Header="Concurrent downloads">
+                    <MenuItem x:Name="_dl1" Header="1" IsCheckable="True" Tag="1" Click="Downloads_Click"/>
+                    <MenuItem x:Name="_dl2" Header="2" IsCheckable="True" Tag="2" Click="Downloads_Click"/>
+                    <MenuItem x:Name="_dl3" Header="3" IsCheckable="True" Tag="3" Click="Downloads_Click"/>
+                    <MenuItem x:Name="_dl4" Header="4" IsCheckable="True" Tag="4" Click="Downloads_Click"/>
+                    <MenuItem x:Name="_dl5" Header="5" IsCheckable="True" Tag="5" Click="Downloads_Click"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="_thumbnailItem" Header="Embed thumbnail" IsCheckable="True" Click="Thumbnail_Click"/>
+                <MenuItem x:Name="_metadataItem" Header="Embed metadata"  IsCheckable="True" Click="Metadata_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Margin="24,18,24,18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="18"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="6"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="14"/>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="4"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="YouTube to MP3" FontSize="20" FontWeight="Bold" Foreground="#111111"/>
+                <TextBlock Margin="0,5,0,0" FontSize="12" Foreground="#777777" TextWrapping="Wrap">
+                    Paste YouTube links below — one per line. Supports watch, shorts, playlists and music.youtube.com.
+                </TextBlock>
+            </StackPanel>
+
+            <!-- Label -->
+            <TextBlock Grid.Row="2" Text="YouTube links" FontSize="12" FontWeight="SemiBold" Foreground="#333333"/>
+
+            <!-- TextBox -->
+            <TextBox Grid.Row="4" x:Name="_tbLink"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     FontSize="12" FontFamily="Consolas"
+                     Padding="10" BorderBrush="#DDDDDD" BorderThickness="1"
+                     Background="#FAFAFA" Foreground="#222222"
+                     TextChanged="_tbLink_TextChanged"/>
+
+            <!-- Buttons -->
+            <Grid Grid.Row="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" x:Name="_checkLinksButton"
+                        Content="Check links"
+                        Style="{StaticResource OutlineButton}"
+                        Click="_checkLinksButton_Click"/>
+                <Button Grid.Column="2" x:Name="_convertButton"
+                        Content="Convert to MP3"
+                        Style="{StaticResource PrimaryButton}"
+                        Visibility="Hidden"
+                        Click="_convertButton_Click"/>
+            </Grid>
+
+            <!-- Progress -->
+            <ProgressBar Grid.Row="8" x:Name="_progressBar" Height="4" BorderThickness="0"/>
+
+            <!-- Footer -->
+            <Grid Grid.Row="10">
+                <TextBlock x:Name="_outputLabel" FontSize="10" Foreground="#AAAAAA"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <TextBlock x:Name="label_version" FontSize="10" Foreground="#AAAAAA"
+                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </DockPanel>
 </Window>

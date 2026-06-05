@@ -8,9 +8,15 @@
     <AssemblyName>YoutubeToMP3</AssemblyName>
     <RootNamespace>YoutubeToMP3</RootNamespace>
     <Version>2026.1.0</Version>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <StartupObject>YoutubeToMP3.Program</StartupObject>
+    <AssemblyVersion>2026.1.0</AssemblyVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>

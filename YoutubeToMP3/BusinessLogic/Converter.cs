@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -6,19 +5,20 @@ namespace YoutubeToMP3.BusinessLogic
 {
     public static class Converter
     {
-        public static readonly string OutputFolder =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ConvertedMp3");
-
         public static void SetEnvironment()
         {
-            Directory.CreateDirectory(OutputFolder);
+            if (AppSettings.IsOutputFolderCustomized || !Directory.Exists(AppSettings.OutputFolder))
+                Directory.CreateDirectory(AppSettings.OutputFolder);
         }
 
         public static Process DownloadAsMp3(string url)
         {
+            string thumbnail = AppSettings.EmbedThumbnail ? "--embed-thumbnail " : "";
+            string metadata  = AppSettings.EmbedMetadata  ? "--embed-metadata "  : "";
             string args = $"-x --audio-format mp3 --audio-quality 0 " +
+                          $"{thumbnail}{metadata}" +
                           $"--ffmpeg-location \"{BinaryExtractor.FfmpegPath}\" " +
-                          $"-o \"{OutputFolder}/%(title)s.%(ext)s\" \"{url}\"";
+                          $"-o \"{AppSettings.OutputFolder}/%(title)s.%(ext)s\" \"{url}\"";
 
             return StartProcess(BinaryExtractor.YtDlpPath, args);
         }

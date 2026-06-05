@@ -1,60 +1,107 @@
 using YoutubeToMP3.BusinessLogic;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 
 namespace YoutubeToMP3
 {
     public partial class YoutubeToMP3Form : Window
     {
         private readonly List<string> _urls = new();
+        private MenuItem[] _dlItems = null!;
 
         public YoutubeToMP3Form()
         {
             InitializeComponent();
-            ResizeMode = ResizeMode.NoResize;
-            _tbLink.TextWrapping = TextWrapping.WrapWithOverflow;
-            _tbLink.AcceptsReturn = true;
-            label_version.Content = "Version : " + typeof(YoutubeToMP3Form).Assembly.GetName().Version;
+            var v = Assembly.GetExecutingAssembly().GetName().Version!;
+            label_version.Text = $"v{v.Major}.{v.Minor}.{v.Build}";
+            _outputLabel.Text = $"Output: {AppSettings.OutputFolder}";
+            _dlItems = new[] { _dl1, _dl2, _dl3, _dl4, _dl5 };
+            foreach (var mi in _dlItems)
+                mi.IsChecked = int.Parse((string)mi.Tag) == AppSettings.ConcurrentDownloads;
+            _thumbnailItem.IsChecked = AppSettings.EmbedThumbnail;
+            _metadataItem.IsChecked  = AppSettings.EmbedMetadata;
             Converter.SetEnvironment();
         }
+
+        private void OutputFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFolderDialog
+            {
+                Title = "Select output folder",
+                InitialDirectory = AppSettings.OutputFolder
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                AppSettings.SetOutputFolder(dialog.FolderName);
+                _outputLabel.Text = $"Output: {dialog.FolderName}";
+                Converter.SetEnvironment();
+            }
+        }
+
+        private void Downloads_Click(object sender, RoutedEventArgs e)
+        {
+            var clicked = (MenuItem)sender;
+            int value = int.Parse((string)clicked.Tag);
+            foreach (var mi in _dlItems)
+                mi.IsChecked = mi == clicked;
+            AppSettings.SetConcurrentDownloads(value);
+        }
+
+        private void Thumbnail_Click(object sender, RoutedEventArgs e) =>
+            AppSettings.SetEmbedThumbnail(_thumbnailItem.IsChecked);
+
+        private void Metadata_Click(object sender, RoutedEventArgs e) =>
+            AppSettings.SetEmbedMetadata(_metadataItem.IsChecked);
 
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
         {
             IsEnabled = false;
             _progressBar.SetPercentFast(0);
 
-            var failedUrls = new List<string>();
+            var failedUrls = new ConcurrentBag<string>();
+            int completed = 0;
+            int total = _urls.Count;
+            var semaphore = new SemaphoreSlim(AppSettings.ConcurrentDownloads);
 
-            for (int i = 0; i < _urls.Count; i++)
+            var tasks = _urls.Select(async url =>
             {
+                await semaphore.WaitAsync();
                 try
                 {
-                    var process = Converter.DownloadAsMp3(_urls[i]);
+                    var process = Converter.DownloadAsMp3(url);
                     await Task.Run(() => process.WaitForExit());
+                    if (process.ExitCode != 0)
+                        failedUrls.Add(url);
                 }
-                catch (Exception err)
+                catch
                 {
-                    failedUrls.Add(_urls[i]);
-                    MessageBox.Show(
-                        $"Something went wrong with:\n{_urls[i]}\n\nPress OK to continue.\n\n{err}",
-                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    failedUrls.Add(url);
                 }
+                finally
+                {
+                    semaphore.Release();
+                    int done = Interlocked.Increment(ref completed);
+                    Dispatcher.Invoke(() => _progressBar.SetPercentDefault(done * 100.0 / total));
+                }
+            });
 
-                _progressBar.SetPercentDefault((i + 1.0) / _urls.Count * 100);
-            }
+            await Task.WhenAll(tasks);
 
-            if (failedUrls.Count > 0)
+            if (!failedUrls.IsEmpty)
             {
-                string logPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                    "ConvertedMp3.Logs.txt");
+                string logPath = Path.Combine(AppSettings.OutputFolder, "ConvertedMp3.Logs.txt");
                 File.WriteAllLines(logPath, failedUrls);
                 MessageBox.Show(
-                    $"Some downloads failed. Failed URLs saved to:\n{logPath}",
+                    $"{failedUrls.Count} download(s) failed. URLs saved to:\n{logPath}",
                     "Partial failure", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
@@ -72,7 +119,7 @@ namespace YoutubeToMP3
             {
                 _urls.Clear();
                 MessageBox.Show(
-                    "The links contain errors.\nPlease enter one YouTube link per line (e.g. https://www.youtube.com/watch?v=...).",
+                    "One or more links are invalid.\nSupported: youtube.com/watch, /shorts, /playlist, music.youtube.com, youtu.be",
                     "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
