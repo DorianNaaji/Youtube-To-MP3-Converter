@@ -68,8 +68,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          files: |
-            publish/YoutubeToMP3.exe
-            YoutubeToMP3/Resources/mp3.ico
+          files: publish/YoutubeToMP3.exe
         env:
           GITHUB_TOKEN: ${{ github.token }}
