@@ -1,9 +1,12 @@
 # Youtube To MP3 Converter
 
+![UI](ui.png)
+
+
 A simple WPF desktop app to download YouTube videos as MP3 files.
 Paste one or more YouTube links, click **Check links**, then **Convert to MP3**. Files land in `Desktop\ConvertedMp3`.
 
-> Built on .NET 8 WPF; no installation required, single `.exe` with everything bundled.
+> Built on .NET 8 WPF; no installation required, single `.exe` with everything bundled. Windows will prompt for viruses
 
 ## Download
 
@@ -55,11 +58,5 @@ dotnet publish YoutubeToMP3/YoutubeToMP3.csproj -c Release -r win-x64 --self-con
 ```
 
 The pipeline (`.github/workflows/release.yml`) runs this automatically on every GitHub Release.
-
-## UI
-
-![UI](ui.png)
-
----
 
 *Made by [Dorian NAAJI](https://github.com/DorianNaaji)*
