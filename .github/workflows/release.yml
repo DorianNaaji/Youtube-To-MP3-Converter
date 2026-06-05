@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag de la release cible (laisser vide pour utiliser le dernier tag)'
+        description: 'Target release tag (leave empty to use the latest release)'
         required: false
 
 jobs:
