@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag de la release cible (laisser vide pour utiliser le dernier tag)'
+        required: false
 
 jobs:
   build:
@@ -18,6 +22,21 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Resolve target tag
+        id: tag
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish single-file exe
         run: |
           dotnet publish YoutubeToMP3/YoutubeToMP3.csproj `
@@ -31,4 +50,7 @@ jobs:
       - name: Upload exe to release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
           files: publish/YoutubeToMP3.exe
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
