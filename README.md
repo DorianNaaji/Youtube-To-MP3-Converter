@@ -42,7 +42,9 @@ If YouTube changes its API and downloads start failing, the fix is usually to up
 
 1. Download the latest `yt-dlp.exe` from [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases)
 2. Replace `YoutubeToMP3/lib/yt-dlp.exe` in this repo
-3. Push and create a new GitHub Release, the pipeline builds and publishes a new exe automatically
+3. Push and create a new GitHub Release — the pipeline builds and publishes a new exe automatically
+
+Alternatively, use the **Run workflow** button in the Actions tab to re-attach the exe to an existing release without creating a new one.
 
 ## Build from source
 
