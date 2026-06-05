@@ -10,6 +10,7 @@
     <Version>2026.1.0</Version>
     <StartupObject>YoutubeToMP3.Program</StartupObject>
     <AssemblyVersion>2026.1.0</AssemblyVersion>
+    <Company>Dorian NAAJI</Company>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PublishSingleFile>true</PublishSingleFile>

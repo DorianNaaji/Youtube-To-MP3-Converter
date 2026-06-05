@@ -41,28 +41,23 @@ jobs:
         run: |
           dotnet publish YoutubeToMP3/YoutubeToMP3.csproj `
             -c Release `
-            -r win-x64 `
-            --self-contained `
-            -p:PublishSingleFile=true `
-            -p:EnableCompressionInSingleFile=true `
             -o ./publish
 
-      # Code signing via SignPath.io (OSS free program)
-      # To enable: apply at https://app.signpath.io → OSS Free
-      # Then uncomment and fill in organization-id + project/policy slugs
-      # Also add SIGNPATH_API_TOKEN to GitHub repo secrets
-      #
-      # - name: Sign exe
-      #   uses: signpath/github-action-submit-signing-request@v1
-      #   with:
-      #     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-      #     organization-id: '<your-org-id>'
-      #     project-slug: youtube-to-mp3
-      #     signing-policy-slug: release-signing
-      #     artifact-configuration-slug: exe
-      #     github-artifact-name: YoutubeToMP3
-      #     wait-for-completion: true
-      #     output-artifact-name: YoutubeToMP3-signed
+      - name: Sign exe (self-signed — sets publisher name)
+        shell: pwsh
+        run: |
+          $cert = New-SelfSignedCertificate `
+            -Subject "CN=Dorian NAAJI" `
+            -Type CodeSigning `
+            -HashAlgorithm SHA256 `
+            -CertStoreLocation "Cert:\CurrentUser\My"
+          $pwd = ConvertTo-SecureString "ci_temp" -Force -AsPlainText
+          Export-PfxCertificate -Cert $cert -FilePath signing.pfx -Password $pwd | Out-Null
+          $signtool = (Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe `
+            | Where-Object { $_.FullName -match "x64" } | Select-Object -First 1).FullName
+          & $signtool sign /f signing.pfx /p ci_temp /fd sha256 /td sha256 `
+            /tr http://timestamp.digicert.com ./publish/YoutubeToMP3.exe
+          Remove-Item signing.pfx
 
       - name: Upload exe to release
         uses: softprops/action-gh-release@v2
