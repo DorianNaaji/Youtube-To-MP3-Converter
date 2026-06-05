@@ -1,31 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 
 namespace YoutubeToMP3.BusinessLogic
 {
-    /// <summary>
-    /// Credits to https://stackoverflow.com/questions/14485818/how-to-update-a-progress-bar-so-it-increases-smoothly
-    /// </summary>
     public static class ProgressBarExtensions
     {
-        private static TimeSpan durationLong = TimeSpan.FromSeconds(2);
-
-        private static TimeSpan durationFast = TimeSpan.FromMilliseconds(250);
+        private static readonly TimeSpan DurationLong = TimeSpan.FromSeconds(2);
+        private static readonly TimeSpan DurationFast = TimeSpan.FromMilliseconds(250);
 
         public static void SetPercentDefault(this ProgressBar progressBar, double percentage)
         {
-            DoubleAnimation animation = new DoubleAnimation(percentage, durationLong);
+            var animation = new DoubleAnimation(percentage, DurationLong);
             progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
         }
 
         public static void SetPercentFast(this ProgressBar progressBar, double percentage)
         {
-            DoubleAnimation animation = new DoubleAnimation(percentage, durationFast);
+            var animation = new DoubleAnimation(percentage, DurationFast);
             progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
         }
     }

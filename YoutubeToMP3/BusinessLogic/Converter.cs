@@ -1,58 +1,35 @@
-﻿using System;
-using System.IO;
-using NReco.VideoConverter;
+using System;
 using System.Diagnostics;
-using YoutubeToMP3Form.BusinessLogic;
-using System.Collections.Generic;
+using System.IO;
 
 namespace YoutubeToMP3.BusinessLogic
 {
     public static class Converter
     {
-        private static readonly string _pathToFolder =
-            Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ConvertedMp3\";
-
-        private static readonly FFMpegConverter _converter = new FFMpegConverter();
+        public static readonly string OutputFolder =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "ConvertedMp3");
 
         public static void SetEnvironment()
         {
-            Directory.CreateDirectory(_pathToFolder);
+            Directory.CreateDirectory(OutputFolder);
         }
 
-        public static List<String> GetAllConvertedFiles()
+        public static Process DownloadAsMp3(string url)
         {
-            DirectoryInfo d = new DirectoryInfo(_pathToFolder);
-            FileInfo[] files = d.GetFiles();
+            string args = $"-x --audio-format mp3 --audio-quality 0 " +
+                          $"--ffmpeg-location \"{BinaryExtractor.FfmpegPath}\" " +
+                          $"-o \"{OutputFolder}/%(title)s.%(ext)s\" \"{url}\"";
 
-            List<String> filesList = new List<String>();
-            foreach (FileInfo fileInfo in files)
-            {
-                filesList.Add(fileInfo.Name);
-            }
-
-            return filesList;
+            return StartProcess(BinaryExtractor.YtDlpPath, args);
         }
 
-        public static void ConvertFile(String filename)
+        private static Process StartProcess(string fileName, string args)
         {
-            _converter.ConvertMedia(_pathToFolder + filename, _pathToFolder + filename + ".mp3", ".mp3");
-        }
-
-        public static Process DownloadWebmAudio(string url)
-        {
-            return Converter.InitProcess("lib\\yt-dlp.exe", 
-                " -f bestaudio  --extract-audio --audio-format mp3 --audio-quality 0 " + url + " -o " + _pathToFolder + "\\%(title)s.%(ext)s");
-        }
-
-        private static Process InitProcess(String fileName, String args)
-        {
-            Process process = new Process();
+            var process = new Process();
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
-
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = args;
-
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.Start();

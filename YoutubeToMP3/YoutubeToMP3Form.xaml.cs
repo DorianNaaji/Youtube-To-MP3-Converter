@@ -1,150 +1,100 @@
-﻿using YoutubeToMP3.BusinessLogic;
+using YoutubeToMP3.BusinessLogic;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Diagnostics;
 
-#pragma warning disable CS4014
 namespace YoutubeToMP3
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class YoutubeToMP3Form : Window
     {
+        private readonly List<string> _urls = new();
+
         public YoutubeToMP3Form()
         {
             InitializeComponent();
-            this.ResizeMode = ResizeMode.NoResize;
-            this._tbTip.IsReadOnly = true;
-            this._tbTip.IsTabStop = false;
-            this._tbLink.TextWrapping = TextWrapping.WrapWithOverflow;
-            this._tbLink.AcceptsReturn = true;
-            this.label_version.Content = "Version : " + typeof(YoutubeToMP3Form).Assembly.GetName().Version;
+            ResizeMode = ResizeMode.NoResize;
+            _tbLink.TextWrapping = TextWrapping.WrapWithOverflow;
+            _tbLink.AcceptsReturn = true;
+            label_version.Content = "Version : " + typeof(YoutubeToMP3Form).Assembly.GetName().Version;
             Converter.SetEnvironment();
         }
 
-        private readonly List<String> Urls = new List<string>();
-        private readonly Dictionary<String, Boolean> Downloaded = new Dictionary<String, Boolean>();
-
         private async void _convertButton_Click(object sender, RoutedEventArgs e)
         {
-            double cpt = 0;
-            this.IsEnabled = false;
-            this._progressBar.SetPercentFast(0);
-            this.UpdateLayout();
-            List<string> undownloadedFiles = new List<string>();
-            foreach(string url in this.Urls)
-            {
-                // Handle eventual duplicates to avoid errors
-                if (!this.Downloaded.ContainsKey(url))
-                {
-                    this.Downloaded.Add(url, false);
-                }
-            }
+            IsEnabled = false;
+            _progressBar.SetPercentFast(0);
 
-            for (int i = 0; i < Urls.Count; i++)
+            var failedUrls = new List<string>();
+
+            for (int i = 0; i < _urls.Count; i++)
             {
                 try
                 {
-                    Process p = await Task.Run(() => Converter.DownloadWebmAudio(this.Urls[i]));
-                    double di = (double)i;
-                    String currentUrl = this.Urls[i];
-                    Task.Run(() => // Task to update progress bar
-                    {
-                        while (!p.HasExited) { } // Waits for the process to exit in another thread
-                        cpt++;
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            this._progressBar.SetPercentDefault(cpt / this.Urls.Count * 100);
-                            Console.WriteLine(cpt / this.Urls.Count * 100);
-                            if (cpt / this.Urls.Count * 100 == 100)
-                            {
-                                Console.WriteLine("passing to true");
-                                this.IsEnabled = true;
-                            }
-                        });
-                    });
+                    var process = Converter.DownloadAsMp3(_urls[i]);
+                    await Task.Run(() => process.WaitForExit());
                 }
                 catch (Exception err)
                 {
-                    MessageBox.Show("Oops.. Something went wrong with the following url :\n" + this.Urls[i] + "\n" +
-                        "No choice but not to download it ! :(. Press Ok to keep downloading.\n\n\n" + err, "Oops...", MessageBoxButton.OK, MessageBoxImage.Error);
-                    undownloadedFiles.Add(this.Urls[i]);
-                    Console.WriteLine(err);
+                    failedUrls.Add(_urls[i]);
+                    MessageBox.Show(
+                        $"Something went wrong with:\n{_urls[i]}\n\nPress OK to continue.\n\n{err}",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
-            if (!(undownloadedFiles.Count == 0))
-            {
-                String txtPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ConvertedMp3.Logs.txt";
-                File.WriteAllLines(txtPath, undownloadedFiles.ToArray());
+
+                _progressBar.SetPercentDefault((i + 1.0) / _urls.Count * 100);
             }
 
-            Task.Run(() => // Task to convert webm to mp3
+            if (failedUrls.Count > 0)
             {
-                while (!this.AllDownloaded()) { } // Waits for everything to be downloaded
-
-                for (int j = 0; j < Converter.GetAllConvertedFiles().Count; j++)
-                {
-                    Converter.ConvertFile(Converter.GetAllConvertedFiles()[j]);
-                }
-            });
-        }
-
-        private Boolean AllDownloaded()
-        {
-            try
-            {
-                foreach (KeyValuePair<String, Boolean> entry in this.Downloaded)
-                {
-                    if (!entry.Value) return false;
-                }
-                return true;
+                string logPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    "ConvertedMp3.Logs.txt");
+                File.WriteAllLines(logPath, failedUrls);
+                MessageBox.Show(
+                    $"Some downloads failed. Failed URLs saved to:\n{logPath}",
+                    "Partial failure", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            catch(InvalidOperationException e)
-            {
-                return false;
-            }
+
+            IsEnabled = true;
         }
 
         private void _checkLinksButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Urls.Clear();
-            if (this.ParseTextBox())
+            _urls.Clear();
+            if (ParseTextBox())
             {
-                this._convertButton.Visibility = Visibility.Visible;
+                _convertButton.Visibility = Visibility.Visible;
             }
             else
             {
-                this.Urls.Clear();
-                MessageBox.Show("The given links contain errors. Please enter one youtube link per line.\n", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _urls.Clear();
+                MessageBox.Show(
+                    "The links contain errors.\nPlease enter one YouTube link per line (e.g. https://www.youtube.com/watch?v=...).",
+                    "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
         private bool ParseTextBox()
         {
-            TextReader reader = new StringReader(this._tbLink.Text);
+            using var reader = new StringReader(_tbLink.Text);
             while (reader.Peek() >= 0)
             {
-                string youtubeLink = reader.ReadLine();
-                if (youtubeLink.IsYoutubeLinkValid())
-                {
-                    this.Urls.Add(youtubeLink);
-                }
+                string? line = reader.ReadLine();
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                if (line.IsYoutubeLinkValid())
+                    _urls.Add(line);
                 else
-                {
                     return false;
-                }
             }
-            return this.Urls.Count > 0;
+            return _urls.Count > 0;
         }
 
         private void _tbLink_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this._convertButton.Visibility = Visibility.Hidden;
+            _convertButton.Visibility = Visibility.Hidden;
         }
     }
 }

@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Publish single-file exe
+        run: |
+          dotnet publish YoutubeToMP3/YoutubeToMP3.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained `
+            -p:PublishSingleFile=true `
+            -p:EnableCompressionInSingleFile=true `
+            -o ./publish
+
+      - name: Upload exe to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/YoutubeToMP3.exe

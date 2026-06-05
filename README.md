@@ -1,44 +1,63 @@
-# Youtube To MP3 Converter [DISCONTINUED]
+# Youtube To MP3 Converter
 
-**⚠️ STATUS: ARCHIVED / NO LONGER MAINTAINED**
+A simple WPF desktop app to download YouTube videos as MP3 files.
+Paste one or more YouTube links, click **Check links**, then **Convert to MP3**. Files land in `Desktop\ConvertedMp3`.
 
-## 🛑 Why is this project discontinued?
+> Built on .NET 8 WPF; no installation required, single `.exe` with everything bundled.
 
-After maintaining this tool for some time, I have decided to stop its development.
+## Download
 
-Since January 2026, YouTube has aggressively reinforced its anti-bot protections and download restrictions. The "cat-and-mouse" game required to keep this converter working has become too time-consuming.
+Head to the [Releases](https://github.com/DorianNaaji/Youtube-To-MP3-Converter/releases) page and download the latest `YoutubeToMP3.exe`.
 
-The technical challenges now include:
-* **Constant Breaking Changes:** YouTube updates its signature encryption and API almost daily.
-* **Complex Requirements:** Bypassing current protections requires external JavaScript engines (Node.js), specific browser cookie injections, and solving "n-challenges" that constantly fail.
-* **Maintenance Cost:** Keeping the underlying libraries (`yt-dlp`) and the code compatible with YouTube's new "Proof of Humanity" checks requires daily monitoring that I can no longer provide.
+> **Note:** The exe is large (~130 MB) because it bundles the .NET 8 runtime, yt-dlp, and ffmpeg; no external dependencies needed.
 
-## ✅ The Best Alternative
+On first launch, yt-dlp and ffmpeg are extracted to `%TEMP%\YoutubeToMP3\`. This takes a few seconds only once.
 
-Since batch downloading via external software is becoming increasingly difficult, I have switched to a browser-based workflow. This method is much more stable as it uses your active browser session.
+## Usage
 
-I personally recommend using the following combination:
+1. Paste YouTube links into the text box, one per line
+2. Click **Check links** to validate them
+3. Click **Convert to MP3** and wait for the progress bar to complete
+4. Find your MP3 files in `Desktop\ConvertedMp3`
 
-### 1. YouTube Downloader (Chromium Extension)
-I use the **Addoncrop** extension. It integrates a download button directly below the YouTube video player.
-
-👉 **Download here:** [YouTube Downloader (v27)](https://addoncrop.com/v27/youtube-downloader/)
-
-### 2. FlixMate (Helper App)
-To handle high-quality MP3 conversions and video merging, the extension works best with **FlixMate**.
-
-👉 **Download here:** [FlixMate](https://flixmate.net/)
+> Only standard watch links are supported: `https://www.youtube.com/watch?v=...` (& playlists links but better clean them before)
 
 ---
 
-## 💡 Recommended Workflow
+## How it works
 
-Instead of saving links to a text file and trying to batch convert them later (which often triggers YouTube's "Bot" detection due to mass requests), I recommend changing your habit:
+The app shells out to [yt-dlp](https://github.com/yt-dlp/yt-dlp) with the following flags:
 
-**Download the music/video immediately as you discover it.**
+```
+yt-dlp -x --audio-format mp3 --audio-quality 0 --ffmpeg-location <path> -o "Desktop/ConvertedMp3/%(title)s.%(ext)s" <url>
+```
 
-Using the extension mentioned above, it takes just one click while you are listening to the track. It is faster, more reliable, and future-proof.
+Both `yt-dlp.exe` and `ffmpeg.exe` are embedded inside the `.exe` and extracted automatically.
 
 ---
 
-*Thank you to everyone who used this tool.*
+## Updating yt-dlp
+
+If YouTube changes its API and downloads start failing, the fix is usually to update yt-dlp:
+
+1. Download the latest `yt-dlp.exe` from [yt-dlp releases](https://github.com/yt-dlp/yt-dlp/releases)
+2. Replace `YoutubeToMP3/lib/yt-dlp.exe` in this repo
+3. Push and create a new GitHub Release, the pipeline builds and publishes a new exe automatically
+
+## Build from source
+
+Requirements: .NET 8 SDK, Windows (WPF is Windows-only)
+
+```bash
+dotnet publish YoutubeToMP3/YoutubeToMP3.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o ./publish
+```
+
+The pipeline (`.github/workflows/release.yml`) runs this automatically on every GitHub Release.
+
+## UI
+
+![UI](ui.png)
+
+---
+
+*Made by [Dorian NAAJI](https://github.com/DorianNaaji)*
