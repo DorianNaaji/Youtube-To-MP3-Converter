@@ -59,4 +59,13 @@ dotnet publish YoutubeToMP3/YoutubeToMP3.csproj -c Release -r win-x64 --self-con
 
 The pipeline (`.github/workflows/release.yml`) runs this automatically on every GitHub Release.
 
+## Support
+
+This app is free and open source, no ads, no bundled junk. If it saved you some clicks, you can sponsor the project or buy me a coffee.
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-DorianNaaji-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/DorianNaaji)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/dorian.naaji)
+
+---
+
 *Made by [Dorian NAAJI](https://github.com/DorianNaaji)*
