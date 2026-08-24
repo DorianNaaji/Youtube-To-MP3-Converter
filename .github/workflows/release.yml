@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+      # Release tags are named after the version without a prefix (2026.1, 2026.2, ...).
+      - '[0-9]*'
   workflow_dispatch:
     inputs:
       tag:
