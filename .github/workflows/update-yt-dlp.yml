@@ -1,0 +1,39 @@
+name: Refresh bundled yt-dlp
+
+# YouTube breaks yt-dlp's extractors every few weeks, so a binary frozen at build
+# time rots fast. This keeps the bundled copy current without a manual chore.
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download latest yt-dlp
+        id: download
+        run: |
+          version=$(curl -fsSL https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest | jq -r .tag_name)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          curl -fsSL -o YoutubeToMP3/lib/yt-dlp.exe \
+            "https://github.com/yt-dlp/yt-dlp/releases/download/${version}/yt-dlp.exe"
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- YoutubeToMP3/lib/yt-dlp.exe; then
+            echo "yt-dlp already at ${{ steps.download.outputs.version }}, nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add YoutubeToMP3/lib/yt-dlp.exe
+          git commit -m "chore: bump bundled yt-dlp to ${{ steps.download.outputs.version }}"
+          git push

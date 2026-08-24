@@ -2,9 +2,11 @@ using YoutubeToMP3.BusinessLogic;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +17,8 @@ namespace YoutubeToMP3
 {
     public partial class YoutubeToMP3Form : Window
     {
+        private const int MaxUrlsShownPerReason = 5;
+
         private readonly List<string> _urls = new();
         private MenuItem[] _dlItems = null!;
 
@@ -67,7 +71,7 @@ namespace YoutubeToMP3
             IsEnabled = false;
             _progressBar.SetPercentFast(0);
 
-            var failedUrls = new ConcurrentBag<string>();
+            var failures = new ConcurrentBag<DownloadResult>();
             int completed = 0;
             int total = _urls.Count;
             var semaphore = new SemaphoreSlim(AppSettings.ConcurrentDownloads);
@@ -77,14 +81,18 @@ namespace YoutubeToMP3
                 await semaphore.WaitAsync();
                 try
                 {
-                    var process = Converter.DownloadAsMp3(url);
-                    await Task.Run(() => process.WaitForExit());
-                    if (process.ExitCode != 0)
-                        failedUrls.Add(url);
+                    var result = await Converter.DownloadAsMp3Async(url);
+                    if (!result.Success)
+                        failures.Add(result);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    failedUrls.Add(url);
+                    failures.Add(new DownloadResult
+                    {
+                        Url = url,
+                        ExitCode = -1,
+                        Output = $"ERROR: {ex.GetType().Name}: {ex.Message}"
+                    });
                 }
                 finally
                 {
@@ -96,16 +104,77 @@ namespace YoutubeToMP3
 
             await Task.WhenAll(tasks);
 
-            if (!failedUrls.IsEmpty)
-            {
-                string logPath = Path.Combine(AppSettings.OutputFolder, "ConvertedMp3.Logs.txt");
-                File.WriteAllLines(logPath, failedUrls);
-                MessageBox.Show(
-                    $"{failedUrls.Count} download(s) failed. URLs saved to:\n{logPath}",
-                    "Partial failure", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+            if (!failures.IsEmpty)
+                ReportFailures(failures.ToList());
 
             IsEnabled = true;
+        }
+
+        private static void ReportFailures(IReadOnlyList<DownloadResult> failures)
+        {
+            DownloadLog.WriteFailures(failures);
+
+            var message = new StringBuilder();
+            message.AppendLine($"{failures.Count} download(s) failed.");
+            message.AppendLine();
+
+            // Grouping by reason keeps a 50-URL batch that failed for one cause readable.
+            foreach (var group in failures.GroupBy(f => f.Reason))
+            {
+                message.AppendLine($"- {group.Key}");
+                foreach (var failure in group.Take(MaxUrlsShownPerReason))
+                    message.AppendLine($"    {failure.Url}");
+
+                int hidden = group.Count() - MaxUrlsShownPerReason;
+                if (hidden > 0)
+                    message.AppendLine($"    (+{hidden} more)");
+
+                message.AppendLine();
+            }
+
+            message.AppendLine("Open the full log?");
+
+            var answer = MessageBox.Show(message.ToString(), "Download failures",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (answer == MessageBoxResult.Yes)
+                OpenLog();
+        }
+
+        private static void OpenLog()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(DownloadLog.FilePath) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open the log:\n\n{DownloadLog.FilePath}\n\n{ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void UpdateYtDlp_Click(object sender, RoutedEventArgs e)
+        {
+            IsEnabled = false;
+            try
+            {
+                var result = await Converter.UpdateYtDlpAsync();
+                MessageBox.Show(
+                    string.IsNullOrWhiteSpace(result.Output) ? "yt-dlp is already up to date." : result.Output,
+                    result.Success ? "yt-dlp update" : "yt-dlp update failed",
+                    MessageBoxButton.OK,
+                    result.Success ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not run the updater:\n\n{ex.Message}",
+                    "yt-dlp update failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsEnabled = true;
+            }
         }
 
         private void _checkLinksButton_Click(object sender, RoutedEventArgs e)

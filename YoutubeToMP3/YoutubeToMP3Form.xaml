@@ -42,6 +42,8 @@
                 <Separator/>
                 <MenuItem x:Name="_thumbnailItem" Header="Embed thumbnail" IsCheckable="True" Click="Thumbnail_Click"/>
                 <MenuItem x:Name="_metadataItem" Header="Embed metadata"  IsCheckable="True" Click="Metadata_Click"/>
+                <Separator/>
+                <MenuItem Header="Update yt-dlp…" Click="UpdateYtDlp_Click"/>
             </MenuItem>
         </Menu>
 

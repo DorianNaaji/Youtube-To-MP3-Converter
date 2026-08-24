@@ -21,6 +21,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="YoutubeToMP3.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="ffmpeg.exe">
       <LogicalName>ffmpeg.exe</LogicalName>
     </EmbeddedResource>

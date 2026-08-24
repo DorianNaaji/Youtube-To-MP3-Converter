@@ -37,5 +37,14 @@ namespace YoutubeToMP3.BusinessLogic
                 || path.StartsWith("/playlist") && uri.Query.Contains("list=")
                 || host == "music.youtube.com" && path.StartsWith("/watch") && uri.Query.Contains("v=");
         }
+
+        /// <summary>True when the URL points at a playlist as a whole, not a single track inside one.</summary>
+        public static bool IsPlaylistUrl(this string str)
+        {
+            if (!Uri.IsWellFormedUriString(str, UriKind.Absolute))
+                return false;
+
+            return new Uri(str).AbsolutePath.ToLower().StartsWith("/playlist");
+        }
     }
 }
